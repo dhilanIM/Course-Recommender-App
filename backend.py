@@ -1,12 +1,12 @@
 import pandas as pd
 
 models = ("Course Similarity",
-          "User Profile",
-          "Clustering",
+          #"User Profile",
+          #"Clustering",
           "Clustering with PCA",
           "KNN",
           "NMF",
-          "Neural Network",
+          #"Neural Network",
           "Regression with Embedding Features",
           "Classification with Embedding Features")
 
@@ -108,7 +108,8 @@ def predict(model_name, user_ids, params):
                     courses.append(key)
                     scores.append(score)
         # TODO: Add prediction model code here
-
+        elif model_name == models[1]:
+            pass
     res_dict['USER'] = users
     res_dict['COURSE_ID'] = courses
     res_dict['SCORE'] = scores

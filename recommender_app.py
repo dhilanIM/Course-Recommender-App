@@ -130,11 +130,14 @@ if model_selection == backend.models[0]:
     params['top_courses'] = top_courses
     params['sim_threshold'] = course_sim_threshold
 # TODO: Add hyper-parameters for other models
-# User profile model
+
+# User Cluster with PCA
 elif model_selection == backend.models[1]:
-    profile_sim_threshold = st.sidebar.slider('User Profile Similarity Threshold %',
-                                              min_value=0, max_value=100,
-                                              value=50, step=10)
+    #cluster_no = st.sidebar.slider('Number of Clusters',
+    #                               min_value=0, max_value=50,
+    #                               value=20, step=1)
+    #params['cluster_no'] = cluster_no
+    pass
 # Clustering model
 elif model_selection == backend.models[2]:
     cluster_no = st.sidebar.slider('Number of Clusters',
