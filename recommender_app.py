@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import time
 import backend as backend
+from sklearn.cluster import KMeans
 
 from st_aggrid import AgGrid
 from st_aggrid.grid_options_builder import GridOptionsBuilder
@@ -36,6 +37,15 @@ def load_courses():
 def load_bow():
     return backend.load_bow()
 
+@st.cache_data
+def load_user_profile():
+    return backend.load_user_profile()
+
+
+@st.cache_data
+def load_course_genre():
+    return backend.load_course_genres()
+
 
 # Initialize the app by first loading datasets
 def init__recommender_app():
@@ -45,7 +55,8 @@ def init__recommender_app():
         sim_df = load_course_sims()
         course_df = load_courses()
         course_bow_df = load_bow()
-
+        user_profile_df = load_user_profile()
+        curse_genre_df = load_course_genre()
     # Select courses
     st.success('Datasets loaded successfully...')
 
@@ -76,27 +87,30 @@ def init__recommender_app():
     return results
 
 
-def train(model_name, params):
+def train(model_name, params=None):
 
     if model_name == backend.models[0]:
         # Start training course similarity model
         with st.spinner('Training...'):
             time.sleep(0.5)
-            backend.train(model_name)
+            return backend.train(model_name,params)
         st.success('Done!')
     # TODO: Add other model training code here
     elif model_name == backend.models[1]:
-        pass
+        with st.spinner('Training...'):
+            time.sleep(0.5)
+        return backend.train(model_name,params)
+        st.success('Done!')
     else:
         pass
 
 
-def predict(model_name, user_ids, params):
+def predict(model_name, user_ids, params, trained_model = None):
     res = None
     # Start making predictions based on model name, test user ids, and parameters
     with st.spinner('Generating course recommendations: '):
         time.sleep(0.5)
-        res = backend.predict(model_name, user_ids, params)
+        res = backend.predict(model_name, user_ids, params, trained_model)
     st.success('Recommendations generated!')
     return res
 
@@ -133,18 +147,55 @@ if model_selection == backend.models[0]:
 
 # User Cluster with PCA
 elif model_selection == backend.models[1]:
-    #cluster_no = st.sidebar.slider('Number of Clusters',
-    #                               min_value=0, max_value=50,
-    #                               value=20, step=1)
-    #params['cluster_no'] = cluster_no
-    pass
-# Clustering model
-elif model_selection == backend.models[2]:
     cluster_no = st.sidebar.slider('Number of Clusters',
                                    min_value=0, max_value=50,
                                    value=20, step=1)
-else:
-    pass
+    pca_no = st.sidebar.slider('Number of components (For PCA)',
+                                   min_value=4, max_value=13,
+                                   value=8, step=1)
+    recommend_no = st.sidebar.slider('Number of recommendations',
+                                   min_value=1, max_value=6,
+                                   value=3, step=1)
+    params['cluster_no'] = cluster_no
+    params['pca_no'] = pca_no
+    params['recommend_no'] = recommend_no
+    
+# KNN
+elif model_selection == backend.models[2]:
+    neighbors_no = st.sidebar.slider('Number of Neighbors',
+                                   min_value=0, max_value=20,
+                                   value=10, step=1)
+    params['neighbors_no'] = neighbors_no
+
+# NMF
+elif model_selection == backend.models[3]:
+    init_low = st.sidebar.slider('Initial lower bound',
+                                   min_value=0.1, max_value=0.6,
+                                   value=0.5, step=0.1)
+    init_high = st.sidebar.slider('Initial higher bound',
+                                   min_value=1.0, max_value=1.8,
+                                   value=1.5, step=0.1)   
+    factors_no = st.sidebar.slider('Number of factors to use',
+                                   min_value=25, max_value=40,
+                                   value=32, step=1)
+    params['init_low'] = init_low
+    params['init_high'] = init_high
+    params['factors_no'] = factors_no
+    
+# Regression with Embedding Features  (Ridge)  
+elif model_selection == backend.models[4]:
+    shrinkage_amount = st.sidebar.slider('Shrinkage amount (alpha)',
+                                   min_value=0.1, max_value=0.8,
+                                   value=0.2, step=0.1)
+    params['shrinkage_amount'] = shrinkage_amount
+    
+# Classification with Embedding Features  (Random forest)
+elif model_selection == backend.models[5]:
+    max_depth = st.sidebar.slider('Maximum Depth',
+                                   min_value=74, max_value=120,
+                                   value=100, step=1)
+    params['max_depth'] = max_depth           
+                                
 
 
 # Training
@@ -152,9 +203,14 @@ st.sidebar.subheader('3. Training: ')
 training_button = st.sidebar.button("Train Model")
 training_text = st.sidebar.text('')
 # Start training process
-if training_button:
-    train(model_selection, params)
+if 'trained' not in st.session_state:
+    st.session_state.trained = None
 
+
+if training_button:
+    # global trained_model
+    trained_model = train(model_selection, params)
+    st.session_state.trained = trained_model
 
 # Prediction
 st.sidebar.subheader('4. Prediction')
@@ -164,7 +220,7 @@ if pred_button and selected_courses_df.shape[0] > 0:
     # Create a new id for current user session
     new_id = backend.add_new_ratings(selected_courses_df['COURSE_ID'].values)
     user_ids = [new_id]
-    res_df = predict(model_selection, user_ids, params)
+    res_df = predict(model_selection, user_ids, params, trained_model=st.session_state.trained)
     res_df = res_df[['COURSE_ID', 'SCORE']]
     course_df = load_courses()
     res_df = pd.merge(res_df, course_df, on=["COURSE_ID"]).drop('COURSE_ID', axis=1)
