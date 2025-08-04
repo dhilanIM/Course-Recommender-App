@@ -22,4 +22,4 @@ The system supports two recommendation algorithms:
 
 ## 🌐 Demo
 
-[View  demo](tbd/)
+[View  demo](https://course-recommender-app.up.railway.app/)

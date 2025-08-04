@@ -49,7 +49,7 @@ def load_course_genre():
 
 # Initialize the app by first loading datasets
 def init__recommender_app():
-
+    st.header("📚 Course Recommender System")
     with st.spinner('Loading datasets...'):
         ratings_df = load_ratings()
         sim_df = load_course_sims()
