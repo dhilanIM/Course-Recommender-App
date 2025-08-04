@@ -9,11 +9,12 @@ models = ("Course Similarity",
           #"User Profile",
           #"Clustering",
           "Clustering with PCA",
-          "KNN",
-          "NMF",
+          #"KNN",
+          #"NMF",
           #"Neural Network",
-          "Regression with Embedding Features", # Ridge
-          "Classification with Embedding Features") # Random forest
+          #"Regression with Embedding Features", # Ridge
+          #"Classification with Embedding Features" # Random forest
+        )
 
 
 def load_ratings():
@@ -147,7 +148,9 @@ def train(model_name, params):
         global pca_cluster_df
         pca_cluster_df = combine_cluster_labels(user_ids,cluster_labels)
         return kmeans
-
+    # elif model_name == models[2]:       # KNN w/ Surprise library
+    #     rating_df = load_ratings()
+        
 
 # Prediction
 def predict(model_name, user_ids, params, trained_model):

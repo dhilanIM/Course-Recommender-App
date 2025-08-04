@@ -1,3 +1,4 @@
 venv/
 app.code-workspace
 .vscode
+.venv

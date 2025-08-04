@@ -95,15 +95,16 @@ def train(model_name, params=None):
             time.sleep(0.5)
             return backend.train(model_name,params)
         st.success('Done!')
-    # TODO: Add other model training code here
     elif model_name == backend.models[1]:
         with st.spinner('Training...'):
             time.sleep(0.5)
         return backend.train(model_name,params)
         st.success('Done!')
-    else:
-        pass
-
+    # elif model_name == backend.models[2]:
+    #     with st.spinner('Training...'):
+    #         time.sleep(0.5)
+    #     return backend.train(model_name,params)
+    #     st.success('Done!')
 
 def predict(model_name, user_ids, params, trained_model = None):
     res = None
@@ -160,41 +161,41 @@ elif model_selection == backend.models[1]:
     params['pca_no'] = pca_no
     params['recommend_no'] = recommend_no
     
-# KNN
-elif model_selection == backend.models[2]:
-    neighbors_no = st.sidebar.slider('Number of Neighbors',
-                                   min_value=0, max_value=20,
-                                   value=10, step=1)
-    params['neighbors_no'] = neighbors_no
+# # KNN
+# elif model_selection == backend.models[2]:
+#     neighbors_no = st.sidebar.slider('Number of Neighbors',
+#                                    min_value=0, max_value=20,
+#                                    value=10, step=1)
+#     params['neighbors_no'] = neighbors_no
 
-# NMF
-elif model_selection == backend.models[3]:
-    init_low = st.sidebar.slider('Initial lower bound',
-                                   min_value=0.1, max_value=0.6,
-                                   value=0.5, step=0.1)
-    init_high = st.sidebar.slider('Initial higher bound',
-                                   min_value=1.0, max_value=1.8,
-                                   value=1.5, step=0.1)   
-    factors_no = st.sidebar.slider('Number of factors to use',
-                                   min_value=25, max_value=40,
-                                   value=32, step=1)
-    params['init_low'] = init_low
-    params['init_high'] = init_high
-    params['factors_no'] = factors_no
+# # NMF
+# elif model_selection == backend.models[3]:
+#     init_low = st.sidebar.slider('Initial lower bound',
+#                                    min_value=0.1, max_value=0.6,
+#                                    value=0.5, step=0.1)
+#     init_high = st.sidebar.slider('Initial higher bound',
+#                                    min_value=1.0, max_value=1.8,
+#                                    value=1.5, step=0.1)   
+#     factors_no = st.sidebar.slider('Number of factors to use',
+#                                    min_value=25, max_value=40,
+#                                    value=32, step=1)
+#     params['init_low'] = init_low
+#     params['init_high'] = init_high
+#     params['factors_no'] = factors_no
     
-# Regression with Embedding Features  (Ridge)  
-elif model_selection == backend.models[4]:
-    shrinkage_amount = st.sidebar.slider('Shrinkage amount (alpha)',
-                                   min_value=0.1, max_value=0.8,
-                                   value=0.2, step=0.1)
-    params['shrinkage_amount'] = shrinkage_amount
+# # Regression with Embedding Features  (Ridge)  
+# elif model_selection == backend.models[4]:
+#     shrinkage_amount = st.sidebar.slider('Shrinkage amount (alpha)',
+#                                    min_value=0.1, max_value=0.8,
+#                                    value=0.2, step=0.1)
+#     params['shrinkage_amount'] = shrinkage_amount
     
-# Classification with Embedding Features  (Random forest)
-elif model_selection == backend.models[5]:
-    max_depth = st.sidebar.slider('Maximum Depth',
-                                   min_value=74, max_value=120,
-                                   value=100, step=1)
-    params['max_depth'] = max_depth           
+# # Classification with Embedding Features  (Random forest)
+# elif model_selection == backend.models[5]:
+#     max_depth = st.sidebar.slider('Maximum Depth',
+#                                    min_value=74, max_value=120,
+#                                    value=100, step=1)
+#     params['max_depth'] = max_depth           
                                 
 
 
@@ -224,4 +225,4 @@ if pred_button and selected_courses_df.shape[0] > 0:
     res_df = res_df[['COURSE_ID', 'SCORE']]
     course_df = load_courses()
     res_df = pd.merge(res_df, course_df, on=["COURSE_ID"]).drop('COURSE_ID', axis=1)
-    st.table(res_df)
+    st.dataframe(res_df)
