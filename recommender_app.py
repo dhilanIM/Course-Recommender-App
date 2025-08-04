@@ -118,7 +118,7 @@ def predict(model_name, user_ids, params, trained_model = None):
 
 # ------ UI ------
 # Sidebar
-st.sidebar.title('Personalized Learning Recommender')
+
 # Initialize the app
 selected_courses_df = init__recommender_app()
 
